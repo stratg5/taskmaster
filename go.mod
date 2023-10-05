@@ -1,8 +1,13 @@
 module github.com/capnspacehook/taskmaster
 
-go 1.12
+go 1.18
 
 require (
-	github.com/go-ole/go-ole v1.2.4
-	github.com/rickb777/date v1.14.2
+	github.com/go-ole/go-ole v1.3.0
+	github.com/rickb777/date v1.20.5
+)
+
+require (
+	github.com/rickb777/plural v1.4.1 // indirect
+	golang.org/x/sys v0.12.0 // indirect
 )
