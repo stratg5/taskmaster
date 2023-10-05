@@ -1,4 +1,4 @@
-module github.com/capnspacehook/taskmaster
+module github.com/giert/taskmaster
 
 go 1.18
 
