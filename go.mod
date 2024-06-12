@@ -8,6 +8,6 @@ require (
 )
 
 require (
-	github.com/rickb777/plural v1.4.1 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	github.com/rickb777/plural v1.4.2 // indirect
+	golang.org/x/sys v0.21.0 // indirect
 )
