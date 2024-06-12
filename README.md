@@ -1,3 +1,8 @@
+================================================= GIERT'S FORK NOTES =================================================
+Updates dependencies and implements an interval fix from pull request #22 in the original project.
+The updates to go-ole are especially important! Don't wast time on strange errors in production like I did...
+================================================ /GIERT'S FORK NOTES> ================================================
+
 [![Build status](https://ci.appveyor.com/api/projects/status/b3gllq093c8ex5ew?svg=true)](https://ci.appveyor.com/project/capnspacehook/taskmaster)
 [![Go Report Card](https://goreportcard.com/badge/github.com/capnspacehook/taskmaster)](https://goreportcard.com/report/github.com/capnspacehook/taskmaster)
 [![PkgGoDev](https://pkg.go.dev/badge/github.com/capnspacehook/taskmaster)](https://pkg.go.dev/github.com/capnspacehook/taskmaster)
