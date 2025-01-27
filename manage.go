@@ -180,6 +180,8 @@ func (t *TaskService) GetRegisteredTasks() (RegisteredTaskCollection, error) {
 		}
 		registeredTasks = append(registeredTasks, registeredTask)
 
+		task.Release()
+
 		return nil
 	})
 	if err != nil {
