@@ -1,9 +1,11 @@
+//go:build windows
 // +build windows
 
 package taskmaster
 
 import (
 	"errors"
+	"fmt"
 	"syscall"
 
 	ole "github.com/go-ole/go-ole"
@@ -19,7 +21,11 @@ var (
 )
 
 func getTaskSchedulerError(err error) error {
-	errCode := getOLEErrorCode(err)
+	errCode, codeErr := getOLEErrorCode(err)
+	if codeErr != nil {
+		return fmt.Errorf("task scheduler error: %v (unable to get specific error code: %v)", err, codeErr)
+	}
+
 	switch errCode {
 	case 50:
 		return ErrTargetUnsupported
@@ -31,14 +37,29 @@ func getTaskSchedulerError(err error) error {
 }
 
 func getRunningTaskError(err error) error {
-	errCode := getOLEErrorCode(err)
+	errCode, codeErr := getOLEErrorCode(err)
+	if codeErr != nil {
+		return fmt.Errorf("running task error: %v (unable to get specific error code: %v)", err, codeErr)
+	}
+
 	if errCode == 0x8004130B {
 		return ErrRunningTaskCompleted
 	}
-
 	return syscall.Errno(errCode)
 }
 
-func getOLEErrorCode(err error) uint32 {
-	return err.(*ole.OleError).SubError().(ole.EXCEPINFO).SCODE()
+func getOLEErrorCode(err error) (uint32, error) {
+	if oleErr, ok := err.(*ole.OleError); ok {
+		if oleErr.Code() != 0 {
+			return uint32(oleErr.Code()), nil
+		}
+
+		if subErr := oleErr.SubError(); subErr != nil {
+			if excepInfo, ok := subErr.(ole.EXCEPINFO); ok {
+				return uint32(excepInfo.SCODE()), nil
+			}
+		}
+	}
+
+	return 0, errors.New("could not determine OLE error code")
 }

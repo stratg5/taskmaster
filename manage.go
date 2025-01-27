@@ -661,7 +661,8 @@ func (t *TaskService) DeleteTask(path string) error {
 func (t *TaskService) registeredTaskExist(path string) bool {
 	_, err := oleutil.CallMethod(t.rootFolderObj, "GetTask", path)
 	if err != nil {
-		if getOLEErrorCode(err) == 0x80070002 {
+		code, _ := getOLEErrorCode(err)
+		if code == 0x80070002 {
 			return false
 		}
 		// trying to get the task resulted in an error, but the task technically exists,
@@ -675,7 +676,8 @@ func (t *TaskService) registeredTaskExist(path string) bool {
 func (t *TaskService) taskFolderExist(path string) bool {
 	_, err := oleutil.CallMethod(t.taskServiceObj, "GetFolder", path)
 	if err != nil {
-		if getOLEErrorCode(err) == 0x80070002 {
+		code, _ := getOLEErrorCode(err)
+		if code == 0x80070002 {
 			return false
 		}
 		// trying to get the task folder resulted in an error, but the task foler
