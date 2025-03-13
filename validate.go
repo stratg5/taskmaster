@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package taskmaster
@@ -23,7 +24,7 @@ func validateDefinition(def Definition) error {
 	}
 
 	if def.Principal.UserID != "" && def.Principal.GroupID != "" {
-		return ErrInvalidPrinciple
+		return ErrInvalidPrincipal
 	}
 
 	return nil
