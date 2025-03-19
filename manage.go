@@ -173,14 +173,13 @@ func (t *TaskService) GetRegisteredTasks() (RegisteredTaskCollection, error) {
 	defer rootTaskCollection.Release()
 	err = oleutil.ForEach(rootTaskCollection, func(v *ole.VARIANT) error {
 		task := v.ToIDispatch()
+		defer task.Release()
 
 		registeredTask, path, err := parseRegisteredTask(task)
 		if err != nil {
 			return fmt.Errorf("error parsing registered task %s: %v", path, err)
 		}
 		registeredTasks = append(registeredTasks, registeredTask)
-
-		task.Release()
 
 		return nil
 	})
