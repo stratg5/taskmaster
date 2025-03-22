@@ -123,12 +123,6 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	}
 	context := contextVar.ToString()
 
-	xmlTextVar, err := oleutil.GetProperty(actions, "XmlText")
-	if err != nil {
-		return RegisteredTask{}, "", err
-	}
-	xmlText := xmlTextVar.ToString()
-
 	var taskActions []Action
 	err = oleutil.ForEach(actions, func(v *ole.VARIANT) error {
 		action := v.ToIDispatch()
@@ -152,6 +146,13 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 		return RegisteredTask{}, "", err
 	}
 	principal := principalVar.ToIDispatch()
+
+	xmlTextVar, err := oleutil.GetProperty(definition, "XmlText")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	xmlText := xmlTextVar.ToString()
+
 	defer principal.Release()
 	taskPrincipal := parsePrincipal(principal)
 
