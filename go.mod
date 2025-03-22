@@ -1,4 +1,4 @@
-module github.com/giert/taskmaster
+module github.com/stratg5/taskmaster
 
 go 1.22.11
 
