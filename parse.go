@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package taskmaster
@@ -69,6 +70,7 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	actions := oleutil.MustGetProperty(definition, "Actions").ToIDispatch()
 	defer actions.Release()
 	context := oleutil.MustGetProperty(actions, "Context").ToString()
+	xmlText := oleutil.MustGetProperty(actions, "XmlText").ToString()
 
 	var taskActions []Action
 	err = oleutil.ForEach(actions, func(v *ole.VARIANT) error {
@@ -133,6 +135,7 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 		Settings:         *taskSettings,
 		RegistrationInfo: *registrationInfo,
 		Triggers:         taskTriggers,
+		XMLText:          xmlText,
 	}
 
 	registeredTask := RegisteredTask{
