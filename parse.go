@@ -70,7 +70,6 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	actions := oleutil.MustGetProperty(definition, "Actions").ToIDispatch()
 	defer actions.Release()
 	context := oleutil.MustGetProperty(actions, "Context").ToString()
-	xmlText := oleutil.MustGetProperty(actions, "XmlText").ToString()
 
 	var taskActions []Action
 	err = oleutil.ForEach(actions, func(v *ole.VARIANT) error {
@@ -89,6 +88,8 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	if err != nil {
 		return RegisteredTask{}, path, fmt.Errorf("error parsing IAction object: %v", err)
 	}
+
+	xmlText := oleutil.MustGetProperty(definition, "XmlText").ToString()
 
 	principal := oleutil.MustGetProperty(definition, "Principal").ToIDispatch()
 	defer principal.Release()
