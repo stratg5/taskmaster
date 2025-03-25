@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package taskmaster
@@ -55,20 +56,72 @@ func parseRunningTask(task *ole.IDispatch) (RunningTask, error) {
 func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	var err error
 
-	name := oleutil.MustGetProperty(task, "Name").ToString()
-	path := oleutil.MustGetProperty(task, "Path").ToString()
-	enabled := oleutil.MustGetProperty(task, "Enabled").Value().(bool)
-	state := TaskState(oleutil.MustGetProperty(task, "State").Val)
-	missedRuns := uint(oleutil.MustGetProperty(task, "NumberOfMissedRuns").Val)
-	nextRunTime := oleutil.MustGetProperty(task, "NextRunTime").Value().(time.Time)
-	lastRunTime := oleutil.MustGetProperty(task, "LastRunTime").Value().(time.Time)
-	lastTaskResult := TaskResult(oleutil.MustGetProperty(task, "LastTaskResult").Val)
+	nameVar, err := oleutil.GetProperty(task, "Name")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	name := nameVar.ToString()
 
-	definition := oleutil.MustGetProperty(task, "Definition").ToIDispatch()
+	pathVar, err := oleutil.GetProperty(task, "Path")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	path := pathVar.ToString()
+
+	enabledVar, err := oleutil.GetProperty(task, "Enabled")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	enabled := enabledVar.Value().(bool)
+
+	stateVar, err := oleutil.GetProperty(task, "State")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	state := TaskState(stateVar.Val)
+
+	missedRunsVar, err := oleutil.GetProperty(task, "NumberOfMissedRuns")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	missedRuns := uint(missedRunsVar.Val)
+
+	nextRunTimeVar, err := oleutil.GetProperty(task, "NextRunTime")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	nextRunTime := nextRunTimeVar.Value().(time.Time)
+
+	lastRunTimeVar, err := oleutil.GetProperty(task, "LastRunTime")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	lastRunTime := lastRunTimeVar.Value().(time.Time)
+
+	lastTaskResultVar, err := oleutil.GetProperty(task, "LastTaskResult")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	lastTaskResult := TaskResult(lastTaskResultVar.Val)
+
+	definitionVar, err := oleutil.GetProperty(task, "Definition")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	definition := definitionVar.ToIDispatch()
 	defer definition.Release()
-	actions := oleutil.MustGetProperty(definition, "Actions").ToIDispatch()
+	actionsVar, err := oleutil.GetProperty(definition, "Actions")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	actions := actionsVar.ToIDispatch()
 	defer actions.Release()
-	context := oleutil.MustGetProperty(actions, "Context").ToString()
+
+	contextVar, err := oleutil.GetProperty(actions, "Context")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	context := contextVar.ToString()
 
 	var taskActions []Action
 	err = oleutil.ForEach(actions, func(v *ole.VARIANT) error {
@@ -88,25 +141,41 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 		return RegisteredTask{}, path, fmt.Errorf("error parsing IAction object: %v", err)
 	}
 
-	principal := oleutil.MustGetProperty(definition, "Principal").ToIDispatch()
+	principalVar, err := oleutil.GetProperty(definition, "Principal")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	principal := principalVar.ToIDispatch()
 	defer principal.Release()
 	taskPrincipal := parsePrincipal(principal)
 
-	regInfo := oleutil.MustGetProperty(definition, "RegistrationInfo").ToIDispatch()
+	regInfoVar, err := oleutil.GetProperty(definition, "RegistrationInfo")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	regInfo := regInfoVar.ToIDispatch()
 	defer regInfo.Release()
 	registrationInfo, err := parseRegistrationInfo(regInfo)
 	if err != nil {
 		return RegisteredTask{}, path, fmt.Errorf("error parsing IRegistrationInfo object: %v", err)
 	}
 
-	settings := oleutil.MustGetProperty(definition, "Settings").ToIDispatch()
+	settingsVar, err := oleutil.GetProperty(definition, "Settings")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	settings := settingsVar.ToIDispatch()
 	defer settings.Release()
 	taskSettings, err := parseTaskSettings(settings)
 	if err != nil {
 		return RegisteredTask{}, path, fmt.Errorf("error parsing ITaskSettings object: %v", err)
 	}
 
-	triggers := oleutil.MustGetProperty(definition, "Triggers").ToIDispatch()
+	triggersVar, err := oleutil.GetProperty(definition, "Triggers")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	triggers := triggersVar.ToIDispatch()
 	defer triggers.Release()
 
 	var taskTriggers []Trigger
