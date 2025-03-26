@@ -4,6 +4,8 @@ Updates dependencies and implements an interval fix from pull request #22 in the
 
 The updates to go-ole are especially important! Don't wast time on strange errors in production like I did...
 
+The library has a tendency to panic over even parsing errors. My long-term goal is to gradually transition to returning normal errors in more cases.
+
 ======================= /GIERT'S FORK NOTES> =======================
 
 [![Build status](https://ci.appveyor.com/api/projects/status/b3gllq093c8ex5ew?svg=true)](https://ci.appveyor.com/project/capnspacehook/taskmaster)
