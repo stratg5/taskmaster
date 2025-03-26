@@ -146,6 +146,13 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 		return RegisteredTask{}, "", err
 	}
 	principal := principalVar.ToIDispatch()
+
+	xmlTextVar, err := oleutil.GetProperty(definition, "XmlText")
+	if err != nil {
+		return RegisteredTask{}, "", err
+	}
+	xmlText := xmlTextVar.ToString()
+
 	defer principal.Release()
 	taskPrincipal := parsePrincipal(principal)
 
@@ -202,6 +209,7 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 		Settings:         *taskSettings,
 		RegistrationInfo: *registrationInfo,
 		Triggers:         taskTriggers,
+		XMLText:          xmlText,
 	}
 
 	registeredTask := RegisteredTask{
