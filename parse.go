@@ -140,7 +140,7 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	if err != nil {
 		return RegisteredTask{}, path, fmt.Errorf("error parsing IAction object: %v", err)
 	}
-
+  
 	principalVar, err := oleutil.GetProperty(definition, "Principal")
 	if err != nil {
 		return RegisteredTask{}, "", err
