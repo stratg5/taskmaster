@@ -140,7 +140,7 @@ func parseRegisteredTask(task *ole.IDispatch) (RegisteredTask, string, error) {
 	if err != nil {
 		return RegisteredTask{}, path, fmt.Errorf("error parsing IAction object: %v", err)
 	}
-  
+
 	principalVar, err := oleutil.GetProperty(definition, "Principal")
 	if err != nil {
 		return RegisteredTask{}, "", err
@@ -335,6 +335,39 @@ func parseTaskSettings(settings *ole.IDispatch) (*TaskSettings, error) {
 		return nil, fmt.Errorf("error parsing WaitTimeout field: %v", err)
 	}
 
+	var maintenanceSettings *MaintenanceSettings
+
+	maintenanceProperty, err := oleutil.GetProperty(settings, "MaintenanceSettings")
+	if err == nil {
+		maintenanceSettings = &MaintenanceSettings{}
+
+		parsedSettings := maintenanceProperty.ToIDispatch()
+
+		deadlineProperty, err := oleutil.GetProperty(parsedSettings, "Deadline")
+		if err == nil {
+			deadline, err := StringToPeriod(deadlineProperty.ToString())
+			if err == nil {
+				maintenanceSettings.Deadline = deadline
+			}
+		}
+
+		exclusiveProperty, err := oleutil.GetProperty(parsedSettings, "Exclusive")
+		if err == nil {
+			exclusive, ok := exclusiveProperty.Value().(bool)
+			if ok {
+				maintenanceSettings.Exclusive = exclusive
+			}
+		}
+
+		periodProperty, err := oleutil.GetProperty(parsedSettings, "Period")
+		if err == nil {
+			period, err := StringToPeriod(periodProperty.ToString())
+			if err == nil {
+				maintenanceSettings.Period = period
+			}
+		}
+	}
+
 	multipleInstances := TaskInstancesPolicy(oleutil.MustGetProperty(settings, "MultipleInstances").Val)
 
 	networkSettings := oleutil.MustGetProperty(settings, "NetworkSettings").ToIDispatch()
@@ -376,6 +409,7 @@ func parseTaskSettings(settings *ole.IDispatch) (*TaskSettings, error) {
 		TimeLimit:                 timeLimit,
 		Hidden:                    hidden,
 		IdleSettings:              idleTaskSettings,
+		MaintenanceSettings:       maintenanceSettings,
 		MultipleInstances:         multipleInstances,
 		NetworkSettings:           networkTaskSettings,
 		Priority:                  priority,

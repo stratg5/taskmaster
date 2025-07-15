@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package taskmaster
@@ -112,6 +113,18 @@ func fillTaskSettingsObj(settings TaskSettings, settingsObj *ole.IDispatch) {
 	oleutil.MustPutProperty(idlesettingsObj, "RestartOnIdle", settings.IdleSettings.RestartOnIdle)
 	oleutil.MustPutProperty(idlesettingsObj, "StopOnIdleEnd", settings.IdleSettings.StopOnIdleEnd)
 	oleutil.MustPutProperty(idlesettingsObj, "WaitTimeout", settings.IdleSettings.WaitTimeout.String())
+
+	if settings.MaintenanceSettings != nil {
+		maintenanceProperty, err := oleutil.GetProperty(settingsObj, "MaintenanceSettings")
+		if err == nil {
+			maintenanceObject := maintenanceProperty.ToIDispatch()
+			defer maintenanceObject.Release()
+
+			oleutil.PutProperty(maintenanceObject, "Period", settings.MaintenanceSettings.Period.String())
+			oleutil.PutProperty(maintenanceObject, "Deadline", settings.MaintenanceSettings.Deadline.String())
+			oleutil.PutProperty(maintenanceObject, "Exclusive", settings.MaintenanceSettings.Exclusive)
+		}
+	}
 
 	oleutil.MustPutProperty(settingsObj, "MultipleInstances", uint(settings.MultipleInstances))
 
