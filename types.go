@@ -725,6 +725,7 @@ type TaskSettings struct {
 	TimeLimit              period.Period     // the amount of time that is allowed to complete the task
 	Hidden                 bool              // indicates that the task will not be visible in the UI
 	IdleSettings
+	*MaintenanceSettings
 	MultipleInstances TaskInstancesPolicy // defines how the Task Scheduler deals with multiple instances of the task
 	NetworkSettings
 	Priority                  uint          // the priority level of the task, ranging from 0 - 10, where 0 is the highest priority, and 10 is the lowest. Only applies to ComHandler, Email, and MessageBox actions
@@ -744,6 +745,14 @@ type IdleSettings struct {
 	RestartOnIdle bool          // whether the task is restarted when the computer cycles into an idle condition more than once
 	StopOnIdleEnd bool          // indicates that the Task Scheduler will terminate the task if the idle condition ends before the task is completed
 	WaitTimeout   period.Period // the amount of time that the Task Scheduler will wait for an idle condition to occur
+}
+
+// MaintenanceSettings Provides the settings that the Task Scheduler uses to perform task during Automatic maintenance.
+// https://learn.microsoft.com/en-us/windows/win32/api/taskschd/nn-taskschd-imaintenancesettings
+type MaintenanceSettings struct {
+	Deadline  period.Period
+	Exclusive bool
+	Period    period.Period
 }
 
 // NetworkSettings provides the settings that the Task Scheduler service uses to obtain a network profile.
